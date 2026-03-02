@@ -48,3 +48,27 @@ end: 13:26
 at some point in time Integer nonExistentId = 9999; will fail
 
 
+# Account
+
+implement CRUD methods for account table similar to account_group and region
+
+start: 13:53
+end: 13:55
+
+-- same prompt ---
+
+do you have tests for new account with non-existent region or/and account group?
+
+-- same prompt ---
+
+cover all cases, both region and account group is invalid,
+
+and cover all cases in update, have case only for invalid region
+
+# Account for group and for region
+
+in region controller add method to get all accounts for region
+in account group controller add method to get all accounts for group
+
+
+

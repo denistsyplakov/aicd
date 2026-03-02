@@ -26,4 +26,11 @@
                  stripComments="true"/>
     </changeSet>
 
+    <changeSet author="Junie" id="unique-account-name">
+        <sqlFile path="migrations/04-unique-account-name.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+
 </databaseChangeLog>
