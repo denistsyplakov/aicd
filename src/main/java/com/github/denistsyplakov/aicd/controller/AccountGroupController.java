@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api/account-group")
 public class AccountGroupController {
 
     @Autowired
@@ -23,35 +22,35 @@ public class AccountGroupController {
     @Autowired
     private AccountRepository accountRepository;
 
-    @PostMapping
+    @PostMapping("/api/account-group")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountGroupDTO create(@RequestBody AccountGroupDTO accountGroupDTO) {
         return accountGroupService.create(accountGroupDTO);
     }
 
-    @GetMapping
+    @GetMapping("/api/account-group")
     public Iterable<AccountGroupDTO> getAll() {
         return accountGroupRepository.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/account-group/{id}")
     public AccountGroupDTO getById(@PathVariable Integer id) {
         return accountGroupRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account group not found"));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/account-group/{id}")
     public AccountGroupDTO update(@PathVariable Integer id, @RequestBody AccountGroupDTO accountGroupDTO) {
         return accountGroupService.update(id, accountGroupDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/account-group/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         accountGroupService.delete(id);
     }
 
-    @GetMapping("/{id}/account")
+    @GetMapping("/api/account-group/{id}/account")
     public Iterable<AccountDTO> getAccounts(@PathVariable Integer id) {
         if (!accountGroupRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account group not found");

@@ -94,3 +94,9 @@ do not do direct JDBCTemplate queries. You can use JDBCTemplate only in tests. F
 
 add test for non english search e.g.
 اَلْعَرَبِيَّةُ
+
+# update API paths 
+
+In Ping controller I have @GetMapping("/api/ping") full path in GetMapping update all controllers to be consistent with Ping controller
+
+duration: about 5 min

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api/region")
 public class RegionController {
 
     @Autowired
@@ -23,35 +22,35 @@ public class RegionController {
     @Autowired
     private AccountRepository accountRepository;
 
-    @PostMapping
+    @PostMapping("/api/region")
     @ResponseStatus(HttpStatus.CREATED)
     public RegionDTO create(@RequestBody RegionDTO regionDTO) {
         return regionService.create(regionDTO);
     }
 
-    @GetMapping
+    @GetMapping("/api/region")
     public Iterable<RegionDTO> getAll() {
         return regionRepository.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/region/{id}")
     public RegionDTO getById(@PathVariable Integer id) {
         return regionRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Region not found"));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/region/{id}")
     public RegionDTO update(@PathVariable Integer id, @RequestBody RegionDTO regionDTO) {
         return regionService.update(id, regionDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/region/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         regionService.delete(id);
     }
 
-    @GetMapping("/{id}/account")
+    @GetMapping("/api/region/{id}/account")
     public Iterable<AccountDTO> getAccounts(@PathVariable Integer id) {
         if (!regionRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Region not found");

@@ -11,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/sow")
 public class SoWController {
 
     @Autowired
@@ -20,35 +19,35 @@ public class SoWController {
     @Autowired
     private SoWService sowService;
 
-    @PostMapping
+    @PostMapping("/api/sow")
     @ResponseStatus(HttpStatus.CREATED)
     public SoWDTO create(@RequestBody SoWDTO sowDTO) {
         return sowService.create(sowDTO);
     }
 
-    @GetMapping
+    @GetMapping("/api/sow")
     public Iterable<SoWDTO> getAll() {
         return sowRepository.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/sow/{id}")
     public SoWDTO getById(@PathVariable Integer id) {
         return sowRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SoW not found"));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/sow/{id}")
     public SoWDTO update(@PathVariable Integer id, @RequestBody SoWDTO sowDTO) {
         return sowService.update(id, sowDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/sow/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         sowService.delete(id);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/api/sow/search")
     public List<SoWDTO> search(
             @RequestParam String query,
             @RequestParam(name = "max_doc", defaultValue = "10") int maxDoc,

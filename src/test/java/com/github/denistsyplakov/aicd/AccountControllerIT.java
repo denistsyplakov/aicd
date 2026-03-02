@@ -32,6 +32,7 @@ public class AccountControllerIT {
 
     @Test
     public void testCrud() throws Exception {
+        jdbcTemplate.execute("DELETE FROM sow_text_index");
         jdbcTemplate.execute("DELETE FROM sow");
         jdbcTemplate.execute("DELETE FROM account");
         jdbcTemplate.execute("DELETE FROM account_group");

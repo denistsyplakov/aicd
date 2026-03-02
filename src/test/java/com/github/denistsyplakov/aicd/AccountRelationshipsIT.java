@@ -33,6 +33,7 @@ public class AccountRelationshipsIT {
 
     @BeforeEach
     public void setup() {
+        jdbcTemplate.execute("DELETE FROM sow_text_index");
         jdbcTemplate.execute("DELETE FROM sow");
         jdbcTemplate.execute("DELETE FROM account");
         jdbcTemplate.execute("DELETE FROM region");

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/api/account")
 public class AccountController {
 
     @Autowired
@@ -18,29 +17,29 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @PostMapping
+    @PostMapping("/api/account")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountDTO create(@RequestBody AccountDTO accountDTO) {
         return accountService.create(accountDTO);
     }
 
-    @GetMapping
+    @GetMapping("/api/account")
     public Iterable<AccountDTO> getAll() {
         return accountRepository.findAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/account/{id}")
     public AccountDTO getById(@PathVariable Integer id) {
         return accountRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Account not found"));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/account/{id}")
     public AccountDTO update(@PathVariable Integer id, @RequestBody AccountDTO accountDTO) {
         return accountService.update(id, accountDTO);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/account/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         accountService.delete(id);
