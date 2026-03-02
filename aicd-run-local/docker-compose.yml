@@ -1,0 +1,9 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: aicd-postgres
+    environment:
+      POSTGRES_DB: aicd
+      POSTGRES_PASSWORD: pw
+    ports:
+      - "5439:5432"
