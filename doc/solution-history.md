@@ -33,3 +33,18 @@ do you have tests for
   throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Region not found");
   }
 ```
+
+# Account group
+
+implement CRUD methods for account_group table
+
+use RegionController , PingRepository and RegionService as example of behavior 
+
+start: 13:25
+end: 13:26
+
+--- same prompt ---
+
+at some point in time Integer nonExistentId = 9999; will fail
+
+
