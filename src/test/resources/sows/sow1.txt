@@ -1,0 +1,7 @@
+Statement of Work: Cloud Migration Project
+We will migrate all systems from on-premise to AWS. This project includes assessment, planning, migration, and post-migration support. It will take approximately 6 months to complete the migration of all critical workloads.
+тест ывалшлпоилир?*%:?;%%:№№
+
+اَلْعَرَبِيَّةُ (al-ʿarabiyyah)
+
+Keywords: AWS, Cloud, Migration, Infrastructure, Assessment.

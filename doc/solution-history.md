@@ -76,5 +76,21 @@ you cannot guarantee that there will be no region 999999
 
 # SoW
 
+implement CRUD methods for SoW table similar to account.
+once Sow is created or updated or deleted update sow_text_index index
 
+create in SoWController method to do search across all SoWs. Method should accepts 
+- max doc 
+- min rank 
+- max text length
 
+and should return list of SoWDTO with text cropped to max text length with "... " in end if cropped.  
+
+for tests in test/resources - generate 5+ SoW like documents and make test methods to test search.  
+
+do not do direct JDBCTemplate queries. You can use JDBCTemplate only in tests. For production use repository with @Query
+
+--- same prompt ---
+
+add test for non english search e.g.
+اَلْعَرَبِيَّةُ

@@ -1,0 +1,5 @@
+Statement of Work: Security Audit for E-Commerce
+The audit includes vulnerability scanning, manual penetration testing, and a comprehensive security assessment of the e-commerce platform.
+The primary objective is to identify and mitigate risks related to customer data security and payment processing.
+The project will conclude with a detailed report and recommendations.
+Keywords: Security Audit, Penetration Test, E-commerce, Data, Vulnerability.

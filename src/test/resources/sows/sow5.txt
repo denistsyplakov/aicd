@@ -1,0 +1,5 @@
+Statement of Work: Data Analytics for Healthcare
+This project involves processing healthcare data for advanced analytics and machine learning models.
+We will build data pipelines for ingesting clinical records, cleansing data, and generating reports for healthcare providers.
+The project will focus on improving patient outcomes and streamlining administrative tasks.
+Keywords: Data Analytics, Healthcare, Machine Learning, Clinical, Pipeline.

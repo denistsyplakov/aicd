@@ -1,0 +1,5 @@
+Statement of Work: Banking Software Development
+This SoW defines the scope for new feature development for the mobile banking app.
+We will implement secure payment processing, user authentication with biometric support, and real-time transaction notifications.
+The project will follow an agile methodology with two-week sprints.
+Keywords: Banking, Mobile App, Payment, Biometric, Transaction.
