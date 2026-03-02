@@ -1,5 +1,7 @@
 package com.github.denistsyplakov.aicd.controller;
 
+import com.github.denistsyplakov.aicd.repo.AccountRepository;
+import com.github.denistsyplakov.aicd.repo.AccountRepository.AccountDTO;
 import com.github.denistsyplakov.aicd.repo.RegionRepository;
 import com.github.denistsyplakov.aicd.repo.RegionRepository.RegionDTO;
 import com.github.denistsyplakov.aicd.service.RegionService;
@@ -17,6 +19,9 @@ public class RegionController {
 
     @Autowired
     private RegionService regionService;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -44,5 +49,13 @@ public class RegionController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         regionService.delete(id);
+    }
+
+    @GetMapping("/{id}/account")
+    public Iterable<AccountDTO> getAccounts(@PathVariable Integer id) {
+        if (!regionRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Region not found");
+        }
+        return accountRepository.findAllByRegionId(id);
     }
 }

@@ -20,5 +20,7 @@ public interface AccountRepository extends CrudRepository<AccountRepository.Acco
     ) {}
 
     Optional<AccountDTO> findByName(String name);
+    Iterable<AccountDTO> findAllByRegionId(Integer regionId);
+    Iterable<AccountDTO> findAllByAccountGroupId(Integer accountGroupId);
 
 }

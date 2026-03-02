@@ -70,5 +70,11 @@ and cover all cases in update, have case only for invalid region
 in region controller add method to get all accounts for region
 in account group controller add method to get all accounts for group
 
+--- same prompt ---
+
+you cannot guarantee that there will be no region 999999
+
+# SoW
+
 
 

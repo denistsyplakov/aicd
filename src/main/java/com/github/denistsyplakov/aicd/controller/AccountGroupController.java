@@ -2,6 +2,8 @@ package com.github.denistsyplakov.aicd.controller;
 
 import com.github.denistsyplakov.aicd.repo.AccountGroupRepository;
 import com.github.denistsyplakov.aicd.repo.AccountGroupRepository.AccountGroupDTO;
+import com.github.denistsyplakov.aicd.repo.AccountRepository;
+import com.github.denistsyplakov.aicd.repo.AccountRepository.AccountDTO;
 import com.github.denistsyplakov.aicd.service.AccountGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,9 @@ public class AccountGroupController {
 
     @Autowired
     private AccountGroupService accountGroupService;
+
+    @Autowired
+    private AccountRepository accountRepository;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -44,5 +49,13 @@ public class AccountGroupController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         accountGroupService.delete(id);
+    }
+
+    @GetMapping("/{id}/account")
+    public Iterable<AccountDTO> getAccounts(@PathVariable Integer id) {
+        if (!accountGroupRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Account group not found");
+        }
+        return accountRepository.findAllByAccountGroupId(id);
     }
 }
