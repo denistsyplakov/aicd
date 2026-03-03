@@ -21,7 +21,7 @@ public class PingControllerIT {
     public void testPing() throws Exception {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/ping"))
+                .uri(URI.create("http://localhost:" + port + "/api/ping"))
                 .build();
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
