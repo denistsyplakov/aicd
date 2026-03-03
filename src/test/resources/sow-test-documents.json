@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Cloud Infrastructure Modernization",
+    "description": "AWS migration project",
+    "text": "This statement of work covers the migration of legacy infrastructure to AWS cloud platform including containerization and CI/CD pipeline setup. The project includes architecture design, implementation and training."
+  },
+  {
+    "title": "Data Analytics Platform",
+    "description": "BI dashboard development",
+    "text": "Development of a business intelligence dashboard using Apache Spark and Tableau for real-time analytics and reporting. Includes data pipeline design and performance optimization."
+  },
+  {
+    "title": "Hebrew Language Processing",
+    "description": "NLP for Hebrew content",
+    "text": "מערכת לעיבוד שפה טבעית בעברית המאפשרת חיפוש טקסט מלא וניתוח סנטימנט בשפה העברית. המערכת תומכת במגוון ניבים ומבנים לשוניים."
+  },
+  {
+    "title": "Arabic Document Management",
+    "description": "Arabic text search system",
+    "text": "نظام إدارة الوثائق باللغة العربية مع دعم البحث في النصوص الكاملة والفهرسة التلقائية للمحتوى العربي. يدعم النظام مختلف اللهجات العربية."
+  },
+  {
+    "title": "Security Compliance Audit",
+    "description": "SOC2 compliance review",
+    "text": "Comprehensive security audit covering SOC2 Type II compliance requirements including access controls, encryption standards, and incident response procedures. Includes penetration testing and vulnerability assessment."
+  },
+  {
+    "title": "Mobile Application Development",
+    "description": "iOS and Android app",
+    "text": "Native mobile application development for iOS and Android platforms with offline support and real-time synchronization capabilities. Features include push notifications and biometric authentication."
+  }
+]

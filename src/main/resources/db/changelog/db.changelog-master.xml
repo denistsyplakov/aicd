@@ -12,4 +12,11 @@
                  stripComments="true"/>
     </changeSet>
 
+    <changeSet author="Denis Tsyplakov" id="unique-constraints">
+        <sqlFile path="migrations/02-unique-constraints.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
+
 </databaseChangeLog>
