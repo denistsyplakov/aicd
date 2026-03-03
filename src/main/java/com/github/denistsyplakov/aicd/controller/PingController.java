@@ -12,7 +12,7 @@ public class PingController {
     @Autowired
     PingRepository pingRepository;
 
-    @GetMapping("/ping")
+    @GetMapping("/api/ping")
     public int ping() {
         return pingRepository.ping().reply();
     }
