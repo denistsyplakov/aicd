@@ -1,0 +1,14 @@
+This is a test SoW document for development and verification purposes. It contains some English text.
+Development and coding are fun.
+Software Engineering is a great field.
+We love Java and Spring Boot.
+Arabic: السلام عليكم - this is a peace greeting.
+Hebrew: שלום - this is a peace greeting.
+This document is for testing search functionality.
+It should be long enough to test cropping to max text length with "... ".
+Adding more text to reach a certain length.
+Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.

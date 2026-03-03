@@ -76,4 +76,7 @@ In tests do not rely on magic numbers like region 9999 does not exists in DB.
 
 Do not cleanup DB before tests. Cleanup all creates entities from DB after tests.
 
-prefer use of records for DTO, not create intermidiate model layer fore data
+prefer use of records for DTO, do not create intermidiate model layer for data
+
+start: 20:48
+end: 20:55

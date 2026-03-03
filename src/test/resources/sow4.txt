@@ -1,0 +1,20 @@
+This document covers documentation and testing.
+Unit tests, Integration tests, End-to-end tests.
+It is important to have good coverage.
+The project uses JUnit and Spring Boot Test.
+IT tests are written with TestRestTemplate or MockMvc.
+Negative test scenarios are essential to verify error handling.
+Magic numbers should be avoided in tests.
+Cleanup after tests is required.
+The code should be clean and well-documented.
+Comments are helpful for complex logic.
+Standard naming conventions should be followed.
+Code reviews help improve quality.
+Automated testing is part of the CI/CD pipeline.
+Each test should be independent and isolated.
+Mocking dependencies helps in testing components in isolation.
+Database tests should use a dedicated test schema.
+Assertions should be clear and descriptive.
+Testing edge cases is a good practice.
+Bug reports should include steps to reproduce.
+Fixes should be verified with regression tests.

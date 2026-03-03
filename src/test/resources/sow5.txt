@@ -1,0 +1,21 @@
+This fifth document is specifically for testing Hebrew and Arabic text search.
+Hebrew text: הכלבים נובחים והשיירה עוברת.
+Arabic text: الكلاب تنبح والقافلة تسير.
+Multilingual search results are expected.
+The search should be able to handle these languages if configured.
+If using 'english' as the tsvector configuration, it might not find these well unless using a multilingual one.
+But we can still search for them if we don't use full-text indexing for these or if the language is compatible.
+Let's see how the search query handles these.
+If websearch_to_tsquery is used with 'english', it will tokenize and ignore these if they don't match English tokens.
+However, we can search for English words in this file.
+English words: multilinugal, search, languages.
+Arabic: مرحبا.
+Hebrew: בוקר טוב.
+The search for 'search' should return this file.
+Testing search for 'multilingual' should return this file.
+Final document for testing purposes.
+This document is also quite long to test the cropping functionality.
+Testing the "... " at the end when the text is cropped.
+Max text length should be exceeded by this text.
+The end of the document is here.
+Done.

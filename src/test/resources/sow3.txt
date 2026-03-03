@@ -1,0 +1,20 @@
+This is a third document. It's shorter than the others but still useful for testing search with different keywords.
+Keywords like: efficiency, performance, speed.
+The search should be able to find these words easily.
+Also testing some symbols: !@#$%^&*().
+And some more text to fill space and test length limits.
+The quick brown fox jumps over the lazy dog.
+The lazy dog sleeps all day while the fox is busy.
+Efficiency is the key to success.
+High performance is expected from all systems.
+Speed matters when processing large datasets.
+We must optimize our algorithms for better performance.
+Database queries should be efficient and well-indexed.
+Caching can improve system speed significantly.
+Memory management is crucial for performance.
+Garbage collection should be tuned properly.
+Monitoring performance metrics helps identify bottlenecks.
+Load testing reveals how the system behaves under stress.
+Profiling tools are used for code optimization.
+Writing efficient code is an art and a science.
+Continuous performance improvements are necessary.
