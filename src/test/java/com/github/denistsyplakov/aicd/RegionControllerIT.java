@@ -1,13 +1,8 @@
 package com.github.denistsyplakov.aicd;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.denistsyplakov.aicd.repo.RegionRepository.RegionDTO;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -17,33 +12,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class RegionControllerIT {
-
-    @LocalServerPort
-    private int port;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+public class RegionControllerIT extends BaseIT {
 
     @Test
     public void testCrud() throws Exception {
         try (HttpClient client = HttpClient.newHttpClient()) {
             // 1. Create
-            RegionDTO newRegion = new RegionDTO(null, "North");
-            HttpRequest createRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/api/region"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(newRegion)))
-                    .build();
-
-            HttpResponse<String> createResponse = client.send(createRequest, HttpResponse.BodyHandlers.ofString());
-            assertThat(createResponse.statusCode()).isEqualTo(HttpStatus.CREATED.value());
-            RegionDTO createdRegion = objectMapper.readValue(createResponse.body(), RegionDTO.class);
+            String regionNameNorth = randomName("North");
+            RegionDTO createdRegion = createRegion(client, regionNameNorth);
             assertThat(createdRegion.id()).isNotNull();
-            assertThat(createdRegion.name()).isEqualTo("North");
+            assertThat(createdRegion.name()).isEqualTo(regionNameNorth);
 
             // 2. Get All
             HttpRequest getAllRequest = HttpRequest.newBuilder()
@@ -54,7 +32,7 @@ public class RegionControllerIT {
             HttpResponse<String> getAllResponse = client.send(getAllRequest, HttpResponse.BodyHandlers.ofString());
             assertThat(getAllResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
             List<RegionDTO> allRegions = objectMapper.readValue(getAllResponse.body(), objectMapper.getTypeFactory().constructCollectionType(List.class, RegionDTO.class));
-            assertThat(allRegions).extracting(RegionDTO::name).contains("North");
+            assertThat(allRegions).extracting(RegionDTO::name).contains(regionNameNorth);
 
             // 3. Get By ID
             HttpRequest getByIdRequest = HttpRequest.newBuilder()
@@ -68,7 +46,8 @@ public class RegionControllerIT {
             assertThat(fetchedRegion).isEqualTo(createdRegion);
 
             // 4. Update
-            RegionDTO updateRegion = new RegionDTO(null, "South");
+            String regionNameSouth = randomName("South");
+            RegionDTO updateRegion = new RegionDTO(null, regionNameSouth);
             HttpRequest updateRequest = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/region/" + createdRegion.id()))
                     .header("Content-Type", "application/json")
@@ -79,21 +58,17 @@ public class RegionControllerIT {
             assertThat(updateResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
             RegionDTO updatedRegion = objectMapper.readValue(updateResponse.body(), RegionDTO.class);
             assertThat(updatedRegion.id()).isEqualTo(createdRegion.id());
-            assertThat(updatedRegion.name()).isEqualTo("South");
+            assertThat(updatedRegion.name()).isEqualTo(regionNameSouth);
 
             // 5. Update to existing name (conflict)
             // Create another region first
-            RegionDTO anotherRegion = new RegionDTO(null, "East");
-            client.send(HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/api/region"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(anotherRegion)))
-                    .build(), HttpResponse.BodyHandlers.ofString());
+            String regionNameEast = randomName("East");
+            createRegion(client, regionNameEast);
 
             HttpRequest conflictRequest = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/region/" + createdRegion.id()))
                     .header("Content-Type", "application/json")
-                    .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(new RegionDTO(null, "East"))))
+                    .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(new RegionDTO(null, regionNameEast))))
                     .build();
 
             HttpResponse<String> conflictResponse = client.send(conflictRequest, HttpResponse.BodyHandlers.ofString());
@@ -101,7 +76,7 @@ public class RegionControllerIT {
 
             // 6. Delete (fail because of reference constraint)
             // Insert into account table
-            jdbcTemplate.execute("INSERT INTO account(name, region_id) VALUES ('Account 1', " + createdRegion.id() + ")");
+            jdbcTemplate.update("INSERT INTO account(name, region_id) VALUES (?, ?)", randomName("Account 1"), createdRegion.id());
 
             HttpRequest deleteFailRequest = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/region/" + createdRegion.id()))

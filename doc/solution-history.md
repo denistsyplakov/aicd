@@ -100,3 +100,8 @@ add test for non english search e.g.
 In Ping controller I have @GetMapping("/api/ping") full path in GetMapping update all controllers to be consistent with Ping controller
 
 duration: about 5 min
+
+# test scenarious
+
+collection list of all test scenarios in IT tests and write them into doc/test-scenarious.md 
+and group by entity.

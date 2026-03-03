@@ -1,6 +1,5 @@
 package com.github.denistsyplakov.aicd;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.denistsyplakov.aicd.repo.AccountGroupRepository.AccountGroupDTO;
 import com.github.denistsyplakov.aicd.repo.AccountRepository.AccountDTO;
 import com.github.denistsyplakov.aicd.repo.RegionRepository.RegionDTO;
@@ -8,12 +7,9 @@ import com.github.denistsyplakov.aicd.repo.SoWRepository.SoWDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StreamUtils;
 
 import java.math.BigDecimal;
@@ -22,22 +18,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class SoWControllerIT {
-
-    @LocalServerPort
-    private int port;
-
-    private final ObjectMapper objectMapper = new ObjectMapper().findAndRegisterModules();
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+public class SoWControllerIT extends BaseIT {
 
     @Autowired
     private ResourceLoader resourceLoader;
@@ -46,16 +32,10 @@ public class SoWControllerIT {
 
     @BeforeEach
     public void setup() throws Exception {
-        jdbcTemplate.execute("DELETE FROM sow_text_index");
-        jdbcTemplate.execute("DELETE FROM sow");
-        jdbcTemplate.execute("DELETE FROM account");
-        jdbcTemplate.execute("DELETE FROM account_group");
-        jdbcTemplate.execute("DELETE FROM region");
-
         try (HttpClient client = HttpClient.newHttpClient()) {
-            AccountGroupDTO group = createAccountGroup(client, "Test Group");
-            RegionDTO region = createRegion(client, "Test Region");
-            account = createAccount(client, "Test Account", group.id(), region.id());
+            AccountGroupDTO group = createAccountGroup(client, randomName("Test Group"));
+            RegionDTO region = createRegion(client, randomName("Test Region"));
+            account = createAccount(client, randomName("Test Account"), group.id(), region.id());
         }
     }
 
@@ -63,18 +43,11 @@ public class SoWControllerIT {
     public void testCrud() throws Exception {
         try (HttpClient client = HttpClient.newHttpClient()) {
             // 1. Create
-            SoWDTO newSoW = new SoWDTO(null, account.id(), new Date(), "SoW 1", new BigDecimal("1000.00"), "Description 1", "Some long text content for SoW 1");
-            HttpRequest createRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/api/sow"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(newSoW)))
-                    .build();
-
-            HttpResponse<String> createResponse = client.send(createRequest, HttpResponse.BodyHandlers.ofString());
-            assertThat(createResponse.statusCode()).isEqualTo(HttpStatus.CREATED.value());
-            SoWDTO createdSoW = objectMapper.readValue(createResponse.body(), SoWDTO.class);
+            String sowTitle1 = randomName("SoW 1");
+            SoWDTO newSoW = new SoWDTO(null, account.id(), new Date(), sowTitle1, new BigDecimal("1000.00"), "Description 1", "Some long text content for SoW 1");
+            SoWDTO createdSoW = createSoW(client, newSoW);
             assertThat(createdSoW.id()).isNotNull();
-            assertThat(createdSoW.title()).isEqualTo("SoW 1");
+            assertThat(createdSoW.title()).isEqualTo(sowTitle1);
 
             // 2. Get By ID
             HttpRequest getByIdRequest = HttpRequest.newBuilder()
@@ -93,7 +66,8 @@ public class SoWControllerIT {
             assertThat(fetchedSoW.text()).isEqualTo(createdSoW.text());
 
             // 3. Update
-            SoWDTO updateSoW = new SoWDTO(null, account.id(), new Date(), "Updated SoW", new BigDecimal("2000.00"), "Updated Description", "Updated text content");
+            String sowTitleUpdated = randomName("Updated SoW");
+            SoWDTO updateSoW = new SoWDTO(null, account.id(), new Date(), sowTitleUpdated, new BigDecimal("2000.00"), "Updated Description", "Updated text content");
             HttpRequest updateRequest = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/sow/" + createdSoW.id()))
                     .header("Content-Type", "application/json")
@@ -103,7 +77,7 @@ public class SoWControllerIT {
             HttpResponse<String> updateResponse = client.send(updateRequest, HttpResponse.BodyHandlers.ofString());
             assertThat(updateResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
             SoWDTO updatedSoW = objectMapper.readValue(updateResponse.body(), SoWDTO.class);
-            assertThat(updatedSoW.title()).isEqualTo("Updated SoW");
+            assertThat(updatedSoW.title()).isEqualTo(sowTitleUpdated);
 
             // 4. Delete
             HttpRequest deleteRequest = HttpRequest.newBuilder()
@@ -131,13 +105,8 @@ public class SoWControllerIT {
             for (int i = 1; i <= 5; i++) {
                 Resource resource = resourceLoader.getResource("classpath:sows/sow" + i + ".txt");
                 String content = StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
-                SoWDTO sow = new SoWDTO(null, account.id(), new Date(), "SoW Title " + i, new BigDecimal("100.00"), "Description " + i, content);
-                
-                client.send(HttpRequest.newBuilder()
-                        .uri(URI.create("http://localhost:" + port + "/api/sow"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(sow)))
-                        .build(), HttpResponse.BodyHandlers.ofString());
+                SoWDTO sow = new SoWDTO(null, account.id(), new Date(), randomName("SoW Title " + i), new BigDecimal("100.00"), "Description " + i, content);
+                createSoW(client, sow);
             }
 
             // Test search for AWS (should find sow1)
@@ -187,18 +156,10 @@ public class SoWControllerIT {
     @Test
     public void testNonEnglishSearch() throws Exception {
         try (HttpClient client = HttpClient.newHttpClient()) {
-            String arabicTitle = "عنوان عربي";
+            String arabicTitle = randomName("عنوان عربي");
             String arabicText = "هذا نص باللغة اَلْعَرَبِيَّةُ يحتوي على كلمات مختلفة";
             SoWDTO arabicSoW = new SoWDTO(null, account.id(), new Date(), arabicTitle, new BigDecimal("150.00"), "Description Arabic", arabicText);
-
-            HttpRequest createRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/api/sow"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(arabicSoW)))
-                    .build();
-
-            HttpResponse<String> createResponse = client.send(createRequest, HttpResponse.BodyHandlers.ofString());
-            assertThat(createResponse.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+            createSoW(client, arabicSoW);
 
             // Search for "العربية"
             HttpRequest searchRequest = HttpRequest.newBuilder()
@@ -218,17 +179,10 @@ public class SoWControllerIT {
     @Test
     public void testSpecialCharactersSearch() throws Exception {
         try (HttpClient client = HttpClient.newHttpClient()) {
-            String title = "Special Symbols Title";
+            String title = randomName("Special Symbols Title");
             String content = "This content has symbols like ?>/ and some \n line \r\n breaks and \t tabs.";
             SoWDTO specialSoW = new SoWDTO(null, account.id(), new Date(), title, new BigDecimal("250.00"), "Description", content);
-
-            // Create
-            HttpRequest createRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/api/sow"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(specialSoW)))
-                    .build();
-            client.send(createRequest, HttpResponse.BodyHandlers.ofString());
+            createSoW(client, specialSoW);
 
             // Search for query with symbols, line breaks and extra whitespace
             String query = "symbols ?>/ \r\n  \t  breaks";
@@ -247,36 +201,4 @@ public class SoWControllerIT {
         }
     }
 
-    private AccountGroupDTO createAccountGroup(HttpClient client, String name) throws Exception {
-        AccountGroupDTO group = new AccountGroupDTO(null, name);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/api/account-group"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(group)))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return objectMapper.readValue(response.body(), AccountGroupDTO.class);
-    }
-
-    private RegionDTO createRegion(HttpClient client, String name) throws Exception {
-        RegionDTO region = new RegionDTO(null, name);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/api/region"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(region)))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return objectMapper.readValue(response.body(), RegionDTO.class);
-    }
-
-    private AccountDTO createAccount(HttpClient client, String name, Integer groupId, Integer regionId) throws Exception {
-        AccountDTO account = new AccountDTO(null, name, groupId, regionId);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/api/account"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(account)))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        return objectMapper.readValue(response.body(), AccountDTO.class);
-    }
 }

@@ -1,15 +1,10 @@
 package com.github.denistsyplakov.aicd;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.denistsyplakov.aicd.repo.AccountGroupRepository.AccountGroupDTO;
 import com.github.denistsyplakov.aicd.repo.AccountRepository.AccountDTO;
 import com.github.denistsyplakov.aicd.repo.RegionRepository.RegionDTO;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,43 +14,20 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AccountControllerIT {
-
-    @LocalServerPort
-    private int port;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+public class AccountControllerIT extends BaseIT {
 
     @Test
     public void testCrud() throws Exception {
-        jdbcTemplate.execute("DELETE FROM sow_text_index");
-        jdbcTemplate.execute("DELETE FROM sow");
-        jdbcTemplate.execute("DELETE FROM account");
-        jdbcTemplate.execute("DELETE FROM account_group");
-        jdbcTemplate.execute("DELETE FROM region");
-
         try (HttpClient client = HttpClient.newHttpClient()) {
             // Setup: Create Account Group and Region
-            AccountGroupDTO group = createAccountGroup(client, "Test Group");
-            RegionDTO region = createRegion(client, "Test Region");
+            AccountGroupDTO group = createAccountGroup(client, randomName("Test Group"));
+            RegionDTO region = createRegion(client, randomName("Test Region"));
 
             // 1. Create
-            AccountDTO newAccount = new AccountDTO(null, "Account A", group.id(), region.id());
-            HttpRequest createRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/api/account"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(newAccount)))
-                    .build();
-
-            HttpResponse<String> createResponse = client.send(createRequest, HttpResponse.BodyHandlers.ofString());
-            assertThat(createResponse.statusCode()).isEqualTo(HttpStatus.CREATED.value());
-            AccountDTO createdAccount = objectMapper.readValue(createResponse.body(), AccountDTO.class);
+            String accountNameA = randomName("Account A");
+            AccountDTO createdAccount = createAccount(client, accountNameA, group.id(), region.id());
             assertThat(createdAccount.id()).isNotNull();
-            assertThat(createdAccount.name()).isEqualTo("Account A");
+            assertThat(createdAccount.name()).isEqualTo(accountNameA);
             assertThat(createdAccount.accountGroupId()).isEqualTo(group.id());
             assertThat(createdAccount.regionId()).isEqualTo(region.id());
 
@@ -68,7 +40,7 @@ public class AccountControllerIT {
             HttpResponse<String> getAllResponse = client.send(getAllRequest, HttpResponse.BodyHandlers.ofString());
             assertThat(getAllResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
             List<AccountDTO> allAccounts = objectMapper.readValue(getAllResponse.body(), objectMapper.getTypeFactory().constructCollectionType(List.class, AccountDTO.class));
-            assertThat(allAccounts).extracting(AccountDTO::name).contains("Account A");
+            assertThat(allAccounts).extracting(AccountDTO::name).contains(accountNameA);
 
             // 3. Get By ID
             HttpRequest getByIdRequest = HttpRequest.newBuilder()
@@ -82,7 +54,8 @@ public class AccountControllerIT {
             assertThat(fetchedAccount).isEqualTo(createdAccount);
 
             // 4. Update
-            AccountDTO updateAccount = new AccountDTO(null, "Account B", group.id(), region.id());
+            String accountNameB = randomName("Account B");
+            AccountDTO updateAccount = new AccountDTO(null, accountNameB, group.id(), region.id());
             HttpRequest updateRequest = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/account/" + createdAccount.id()))
                     .header("Content-Type", "application/json")
@@ -93,21 +66,17 @@ public class AccountControllerIT {
             assertThat(updateResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
             AccountDTO updatedAccount = objectMapper.readValue(updateResponse.body(), AccountDTO.class);
             assertThat(updatedAccount.id()).isEqualTo(createdAccount.id());
-            assertThat(updatedAccount.name()).isEqualTo("Account B");
+            assertThat(updatedAccount.name()).isEqualTo(accountNameB);
 
             // 5. Update to existing name (conflict)
             // Create another account first
-            AccountDTO anotherAccount = new AccountDTO(null, "Account C", group.id(), region.id());
-            client.send(HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/api/account"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(anotherAccount)))
-                    .build(), HttpResponse.BodyHandlers.ofString());
+            String accountNameC = randomName("Account C");
+            createAccount(client, accountNameC, group.id(), region.id());
 
             HttpRequest conflictRequest = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/account/" + createdAccount.id()))
                     .header("Content-Type", "application/json")
-                    .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(new AccountDTO(null, "Account C", group.id(), region.id()))))
+                    .PUT(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(new AccountDTO(null, accountNameC, group.id(), region.id()))))
                     .build();
 
             HttpResponse<String> conflictResponse = client.send(conflictRequest, HttpResponse.BodyHandlers.ofString());
@@ -139,33 +108,6 @@ public class AccountControllerIT {
         }
     }
 
-    private AccountGroupDTO createAccountGroup(HttpClient client, String name) throws Exception {
-        AccountGroupDTO group = new AccountGroupDTO(null, name);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/api/account-group"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(group)))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertThat(response.statusCode())
-                .withFailMessage("Failed to create account group, status code: %d, body: %s", response.statusCode(), response.body())
-                .isEqualTo(HttpStatus.CREATED.value());
-        return objectMapper.readValue(response.body(), AccountGroupDTO.class);
-    }
-
-    private RegionDTO createRegion(HttpClient client, String name) throws Exception {
-        RegionDTO region = new RegionDTO(null, name);
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/api/region"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(region)))
-                .build();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        assertThat(response.statusCode())
-                .withFailMessage("Failed to create region, status code: %d, body: %s", response.statusCode(), response.body())
-                .isEqualTo(HttpStatus.CREATED.value());
-        return objectMapper.readValue(response.body(), RegionDTO.class);
-    }
 
     @Test
     public void testNotFound() throws Exception {
@@ -210,11 +152,11 @@ public class AccountControllerIT {
             Integer nonExistentRegionId = jdbcTemplate.queryForObject("SELECT COALESCE(MAX(id), 0) + 1000000 FROM region", Integer.class);
 
             // Setup: Create a valid group and region for valid FKs
-            AccountGroupDTO group = createAccountGroup(client, "Valid Group");
-            RegionDTO region = createRegion(client, "Valid Region");
+            AccountGroupDTO group = createAccountGroup(client, randomName("Valid Group"));
+            RegionDTO region = createRegion(client, randomName("Valid Region"));
 
             // 1. Create with invalid group
-            AccountDTO invalidGroupAccount = new AccountDTO(null, "Invalid Group Account", nonExistentGroupId, region.id());
+            AccountDTO invalidGroupAccount = new AccountDTO(null, randomName("Invalid Group Account"), nonExistentGroupId, region.id());
             HttpRequest createInvalidGroupRequest = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/account"))
                     .header("Content-Type", "application/json")
@@ -224,7 +166,7 @@ public class AccountControllerIT {
             assertThat(createInvalidGroupResponse.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
 
             // 2. Create with invalid region
-            AccountDTO invalidRegionAccount = new AccountDTO(null, "Invalid Region Account", group.id(), nonExistentRegionId);
+            AccountDTO invalidRegionAccount = new AccountDTO(null, randomName("Invalid Region Account"), group.id(), nonExistentRegionId);
             HttpRequest createInvalidRegionRequest = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/account"))
                     .header("Content-Type", "application/json")
@@ -234,7 +176,7 @@ public class AccountControllerIT {
             assertThat(createInvalidRegionResponse.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
 
             // 3. Create with both invalid
-            AccountDTO invalidBothAccount = new AccountDTO(null, "Invalid Both Account", nonExistentGroupId, nonExistentRegionId);
+            AccountDTO invalidBothAccount = new AccountDTO(null, randomName("Invalid Both Account"), nonExistentGroupId, nonExistentRegionId);
             HttpRequest createInvalidBothRequest = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/account"))
                     .header("Content-Type", "application/json")
@@ -245,15 +187,9 @@ public class AccountControllerIT {
 
             // 4. Update with invalid group
             // First create a valid account
-            AccountDTO validAccount = new AccountDTO(null, "Valid Account", group.id(), region.id());
-            HttpResponse<String> validCreateResponse = client.send(HttpRequest.newBuilder()
-                    .uri(URI.create("http://localhost:" + port + "/api/account"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(validAccount)))
-                    .build(), HttpResponse.BodyHandlers.ofString());
-            AccountDTO createdAccount = objectMapper.readValue(validCreateResponse.body(), AccountDTO.class);
+            AccountDTO createdAccount = createAccount(client, randomName("Valid Account"), group.id(), region.id());
 
-            AccountDTO updateInvalidGroup = new AccountDTO(null, "Updated Valid Account", nonExistentGroupId, region.id());
+            AccountDTO updateInvalidGroup = new AccountDTO(null, randomName("Updated Valid Account"), nonExistentGroupId, region.id());
             HttpRequest updateInvalidGroupRequest = HttpRequest.newBuilder()
                     .uri(URI.create("http://localhost:" + port + "/api/account/" + createdAccount.id()))
                     .header("Content-Type", "application/json")
