@@ -11,5 +11,11 @@
                  splitStatements="true"
                  stripComments="true"/>
     </changeSet>
+    <changeSet author="Denis Tsyplakov" id="region-name-unique-index">
+        <sqlFile path="migrations/02-region-name-unique.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 stripComments="true"/>
+    </changeSet>
 
 </databaseChangeLog>
