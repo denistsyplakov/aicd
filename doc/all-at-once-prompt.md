@@ -26,7 +26,7 @@ on delete check if region is in use and if reference constraint fails return pro
 
 implement CRUD methods for account_group table
 
-use RegionController , PingRepository and RegionService as example of behavior
+use RegionController, PingRepository and RegionService as example of behavior
 
 
 # Account
