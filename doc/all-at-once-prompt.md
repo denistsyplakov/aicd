@@ -13,7 +13,7 @@ create RegionController that should support CRUD operations
 - delete
   Use common naming conventions, prefix all http methods by /api
 
-all get calls should go directly to the repository
+all simple get calls should go directly to the repository
 
 for create, read, update create RegionService
 
