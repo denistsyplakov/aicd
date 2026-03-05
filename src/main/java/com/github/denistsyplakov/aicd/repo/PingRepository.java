@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PingRepository extends CrudRepository<PingRepository.PingDTO, String> {
 
-    public record PingDTO(int reply){}
+    record PingDTO(int reply){}
 
     @Query("SELECT 1+1 as reply")
     PingDTO ping();
