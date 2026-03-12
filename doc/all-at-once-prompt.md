@@ -13,9 +13,9 @@ create RegionController that should support CRUD operations
 - delete
   Use common naming conventions, prefix all http methods by /api
 
-all get calls should go directly to the repository
+all `one SQL query` get calls should go directly to the repository
 
-for create, read, update create RegionService
+for `create`, `delete`, `update` - create RegionService
 
 on update mind uniquness of region name (create change set with uniuque index)
 and if not unique throw proper http error (not 500)
